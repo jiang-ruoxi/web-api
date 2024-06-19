@@ -12,7 +12,7 @@ func All() func(r *gin.Engine) {
 		// panic日志
 		r.Use(ginzap.RecoveryWithZap(log.Sugar().Desugar(), true))
 
-		prefixRouter := r.Group("/api")
+		prefixRouter := r.Group("/")
 
 		// 网站前台
 		Api(prefixRouter)

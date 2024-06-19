@@ -7,10 +7,17 @@ import (
 
 func Api(r *gin.RouterGroup) {
 
-	prefixRouter := r.Group("/v1")
+	prefixRouter := r.Group("v2")
 
 	homeHandler := api_handler.NewIndexHandler()
 	{
 		prefixRouter.GET("/home", homeHandler.Index)
+	}
+
+	chineseHandler := api_handler.NewChineseHandler()
+	{
+		prefixRouter.GET("/chinese/getNavList", chineseHandler.ChineseGetNavList)
+		prefixRouter.GET("/chinese/getList", chineseHandler.ChineseGetBookList)
+		prefixRouter.GET("/chinese/getBookInfo", chineseHandler.ChineseGetBookInfo)
 	}
 }
