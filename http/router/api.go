@@ -1,6 +1,7 @@
 package router
 
 import (
+	"api/common"
 	"api/http/handler/api_handler"
 	"api/middleware"
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func Api(r *gin.RouterGroup) {
 
 	chineseHandler := api_handler.NewChineseHandler()
 	{
-		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getNavList", chineseHandler.ChineseGetNavList)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getNavList", routerCache(common.RedisURL_CACHE), chineseHandler.ChineseGetNavList)
 		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getList", chineseHandler.ChineseGetBookList)
 		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getBookInfo", chineseHandler.ChineseGetBookInfo)
 	}
