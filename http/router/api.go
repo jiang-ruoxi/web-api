@@ -2,6 +2,7 @@ package router
 
 import (
 	"api/http/handler/api_handler"
+	"api/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,26 +17,26 @@ func Api(r *gin.RouterGroup) {
 
 	chineseHandler := api_handler.NewChineseHandler()
 	{
-		prefixRouter.GET("/chinese/getNavList", chineseHandler.ChineseGetNavList)
-		prefixRouter.GET("/chinese/getList", chineseHandler.ChineseGetBookList)
-		prefixRouter.GET("/chinese/getBookInfo", chineseHandler.ChineseGetBookInfo)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getNavList", chineseHandler.ChineseGetNavList)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getList", chineseHandler.ChineseGetBookList)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getBookInfo", chineseHandler.ChineseGetBookInfo)
 	}
 
 	albumHandler := api_handler.NewAlbumHandler()
 	{
-		prefixRouter.GET("/chinese/getAlbumList", albumHandler.AlbumGetList)
-		prefixRouter.GET("/chinese/getAlbumListInfo", albumHandler.AlbumGetListInfo)
-		prefixRouter.GET("/chinese/getAlbumInfo", albumHandler.AlbumGetInfo)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getAlbumList", albumHandler.AlbumGetList)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getAlbumListInfo", albumHandler.AlbumGetListInfo)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/chinese/getAlbumInfo", albumHandler.AlbumGetInfo)
 	}
 
 	poetryHandler := api_handler.NewPoetryHandler()
 	{
-		prefixRouter.GET("/poetry/cheng/getList", poetryHandler.PoetryGetChengList)
-		prefixRouter.GET("/poetry/cheng/getPoetryInfo", poetryHandler.PoetryGetChengInfo)
-		prefixRouter.GET("/poetry/school/getList", poetryHandler.PoetryGetSchoolList)
-		//prefixRouter.GET("/poetry/school/getPoetryInfo", poetryHandler.PoetryGetSchoolInfo)
-		//prefixRouter.GET("/poetry/junior/getList", poetryHandler.PoetryGetJuniorList)
-		//prefixRouter.GET("/poetry/junior/getPoetryInfo", poetryHandler.PoetryGetJuniorInfo)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/cheng/getList", poetryHandler.PoetryGetChengList)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/cheng/getPoetryInfo", poetryHandler.PoetryGetChengInfo)
+		prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/school/getList", poetryHandler.PoetryGetSchoolList)
+		//prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/school/getPoetryInfo", poetryHandler.PoetryGetSchoolInfo)
+		//prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/junior/getList", poetryHandler.PoetryGetJuniorList)
+		//prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/junior/getPoetryInfo", poetryHandler.PoetryGetJuniorInfo)
 	}
 
 }
