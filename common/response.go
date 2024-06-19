@@ -32,3 +32,66 @@ type ResponseBookInfoCount struct {
 	BookId    string `json:"book_id"`
 	BookCount string `json:"book_count"`
 }
+
+type ChineseAlbumResponse struct {
+	List      []model.ChineseBookAlbum `json:"list"`
+	Total     int64                    `json:"total"`
+	Page      int                      `json:"page"`
+	TotalPage float64                  `json:"total_page"`
+}
+
+type ChineseAlbumListInfoResponse struct {
+	List      []model.ChineseAlbumInfo `json:"list"`
+	Total     int64                    `json:"total"`
+	Page      int                      `json:"page"`
+	TotalPage float64                  `json:"total_page"`
+}
+
+type ChineseAlbumInfoResponse struct {
+	Info model.ChineseAlbumInfo `json:"info"`
+}
+
+type ChineseChengYuResponse struct {
+	List      []model.ChengYU `json:"list"`
+	Total     int64           `json:"total"`
+	Page      int             `json:"page"`
+	TotalPage float64         `json:"total_page"`
+}
+
+type ChineseChengYuInfoResponse struct {
+	Info CYdATA `json:"info"`
+}
+
+type CYdATA struct {
+	Id        int      `json:"id"`
+	Title     string   `json:"title"`
+	Pinyin    string   `json:"pinyin"`
+	Explain   string   `json:"explain"`
+	Source    string   `json:"source"`
+	Usage     string   `json:"usage"`
+	Example   string   `json:"example"`
+	Near      string   `json:"near"`
+	Antonym   string   `json:"antonym"`
+	Analyse   string   `json:"analyse"`
+	Story     string   `json:"story"`
+	Level     uint8    `json:"level"`
+	StoryList []string `json:"story_list"`
+}
+
+type SchoolPoetryListResponse struct {
+	List      []ResponseSchoolPoetry `json:"list"`
+	Total     int64                  `json:"total"`
+	Page      int                    `json:"page"`
+	TotalPage float64                `json:"total_page"`
+}
+
+type ResponseSchoolPoetry struct {
+	Id         int    `json:"id"`
+	PoetryId   int    `json:"poetry_id"`
+	Title      string `json:"title"`
+	GradeId    uint8  `json:"grade_id" `
+	Grade      string `json:"grade" `
+	GradeLevel uint8  `json:"grade_level" `
+	Author     string `json:"author" `
+	Dynasty    string `json:"dynasty"`
+}

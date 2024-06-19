@@ -20,4 +20,22 @@ func Api(r *gin.RouterGroup) {
 		prefixRouter.GET("/chinese/getList", chineseHandler.ChineseGetBookList)
 		prefixRouter.GET("/chinese/getBookInfo", chineseHandler.ChineseGetBookInfo)
 	}
+
+	albumHandler := api_handler.NewAlbumHandler()
+	{
+		prefixRouter.GET("/chinese/getAlbumList", albumHandler.AlbumGetList)
+		prefixRouter.GET("/chinese/getAlbumListInfo", albumHandler.AlbumGetListInfo)
+		prefixRouter.GET("/chinese/getAlbumInfo", albumHandler.AlbumGetInfo)
+	}
+
+	poetryHandler := api_handler.NewPoetryHandler()
+	{
+		prefixRouter.GET("/poetry/cheng/getList", poetryHandler.PoetryGetChengList)
+		prefixRouter.GET("/poetry/cheng/getPoetryInfo", poetryHandler.PoetryGetChengInfo)
+		prefixRouter.GET("/poetry/school/getList", poetryHandler.PoetryGetSchoolList)
+		//prefixRouter.GET("/poetry/school/getPoetryInfo", poetryHandler.PoetryGetSchoolInfo)
+		//prefixRouter.GET("/poetry/junior/getList", poetryHandler.PoetryGetJuniorList)
+		//prefixRouter.GET("/poetry/junior/getPoetryInfo", poetryHandler.PoetryGetJuniorInfo)
+	}
+
 }
