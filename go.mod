@@ -1,6 +1,6 @@
 module api
 
-go 1.19
+go 1.21.9
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
