@@ -9,7 +9,9 @@ const MINI_WECHAT = "micromessenger"
 const DEFAULT_PAGE = 1
 const DEFAULT_LEVEL = 1
 const DEFAULT_PAGE_SIZE = 20
-const RedisURL_CACHE = 7200
+const RedisURL_CACHE = 30
+const GIN_BASE_URL = "https://api.58haha.com"
+const GIN_LESS_VALUE = 3600 //默认秒
 
 const (
 	SUCCESS                = 10000

@@ -9,7 +9,7 @@ import (
 
 func Api(r *gin.RouterGroup) {
 
-	prefixRouter := r.Group("v2")
+	prefixRouter := r.Group("v2").Use(middleware.GlobalMiddleware())
 
 	homeHandler := api_handler.NewIndexHandler()
 	{

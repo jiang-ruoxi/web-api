@@ -89,8 +89,15 @@ func cache(
 			err := cacheStore.Get(cacheKey, &respCache)
 			if err == nil {
 				//当命中缓存路由时候判断，当前路由key的有效期是否小于300秒
-				if rxRedis.ClientDefault("web").TTL(context.Background(), cacheKey).Val().Seconds() < GIN_LESS_VALUE {
-					go redisCacheForcedRefresh(cacheKey, cfg, cacheDuration, cacheStore, respCache)
+				if val, ok := c.Get("gin-less-value"); ok {
+					ginLessValInt := val.(int)
+					ginLessVal := float64(ginLessValInt)
+					if rxRedis.ClientDefault("web").TTL(context.Background(), cacheKey).Val().Seconds() < ginLessVal {
+						if value, exists := c.Get("gin-base-url"); exists {
+							ginBaseUrl := value.(string)
+							go redisCacheForcedRefresh(cacheKey, ginBaseUrl, cfg, cacheDuration, cacheStore, respCache)
+						}
+					}
 				}
 				replyWithCache(c, cfg, respCache)
 				cfg.hitCacheCallback(c)

@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+func GlobalMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Set("gin-base-url", common.GIN_BASE_URL)
+		ctx.Set("gin-less-value", common.GIN_LESS_VALUE)
+		ctx.Next()
+	}
+}
+
 // CheckWechatMiddleware 验证是否为微信小程序访问
 func CheckWechatMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -13,6 +21,7 @@ func CheckWechatMiddleware() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+
 		ctx.Next()
 	}
 }
