@@ -2,5 +2,5 @@
 .DS_Store
 .vscode
 .fleet
-logs/*
+logs/api.log
 tmp/*
