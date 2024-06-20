@@ -2,6 +2,7 @@ package main
 
 import (
 	"api/cache"
+	"github.com/jiang-ruoxi/gopkg/es"
 	"os"
 
 	rxMysql "github.com/jiang-ruoxi/gopkg/db"
@@ -47,5 +48,6 @@ func initConfig(*cli.Context) error {
 	rxMysql.InitMysqlDB()
 	rxRedis.InitFromViperDefault()
 	cache.HttpCache()
+	es.Initialize()
 	return nil
 }

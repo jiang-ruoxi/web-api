@@ -17,3 +17,10 @@ log:
   outputs:
     - stdout
     - ./logs/api.log
+elasticsearch:
+  engine:
+    lang_indices: jp.language.lib.alias
+    addresses:
+      - http://10.122.9.15:9200
+    username: elastic
+    password: LYBGheLm0!

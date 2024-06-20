@@ -5,7 +5,18 @@ import (
 	"net/http"
 )
 
-const Success = 10000
+const SuccessCode = 10000
+const FailedCode = 10001
+
+var (
+
+	// Failed 操作失败
+	Failed = &Err{
+		code:     FailedCode,
+		httpCode: 200,
+		message:  "操作失败",
+	}
+)
 
 type Err struct {
 	code     int
@@ -43,7 +54,7 @@ type Response struct {
 func SucResp(data interface{}) (resCode int, res Response) {
 	resCode = 200
 	res = Response{
-		Code: Success,
+		Code: SuccessCode,
 		Msg:  "success",
 		Data: data,
 	}

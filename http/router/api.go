@@ -39,4 +39,9 @@ func Api(r *gin.RouterGroup) {
 		//prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/junior/getList", poetryHandler.PoetryGetJuniorList)
 		//prefixRouter.Use(middleware.CheckWechatMiddleware()).GET("/poetry/junior/getPoetryInfo", poetryHandler.PoetryGetJuniorInfo)
 	}
+
+	searchHandler := api_handler.NewSearchHandler()
+	{
+		prefixRouter.POST("/search", searchHandler.SearchList)
+	}
 }
