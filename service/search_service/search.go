@@ -207,16 +207,8 @@ func (srv *SearchService) formatSearchData(content common.SearchResponseBody, li
 			}
 		}
 		searchResponseItem.Introduction = item.Introduction // 简介
-		if item.LibType == libTypeDynamic {
-			searchResponseItem.Introduction = item.Content // 简介
-		}
 		if hit.Highlight != nil && len(hit.Highlight["introduction"]) > 0 {
 			searchResponseItem.IntroductionHighlight = hit.Highlight["introduction"][0]
-		}
-		if item.LibType == libTypeDynamic {
-			if hit.Highlight != nil && len(hit.Highlight["content"]) > 0 {
-				searchResponseItem.IntroductionHighlight = hit.Highlight["content"][0]
-			}
 		}
 		searchResponseItem.CoverImage = item.CoverImage               // 封面图
 		searchResponseItem.PublishTimeOrder = item.PublishTimeOrder   // 出版时间

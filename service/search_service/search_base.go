@@ -9,22 +9,7 @@ import (
 )
 
 const searchFrom int = 0
-const statusEnable int = 1                      // 状态:1已发布 2未发布
-const libTypeDynamicId int = 1                  //资讯类型ID
-const libTypeDynamic string = "dynamic"         //资讯类型
-const libTypeDynamicZH string = "动态资讯"          //资讯类型
-const libTypeLawId int = 2                      //法律类型ID
-const libTypeLaw string = "law"                 //法律类型
-const libTypeLawZH string = "语言法律"              //法律类型
-const libTypeCaseId int = 3                     //案例类型ID
-const libTypeCase string = "case"               //案例类型
-const libTypeCaseZH string = "语言生活"             //案例类型
-const libTypeAchievementId int = 4              //成果库类型ID
-const libTypeAchievement string = "achievement" //成果库类型
-const libTypeAchievementZH string = "研究成果"      //成果库类型
-const libTypeReportId int = 5                   //报告类型ID
-const libTypeReport string = "report"           //报告类型
-const libTypeReportZH string = "机构报告"           //报告类型
+const statusEnable int = 1
 
 var LangFieldMapping = map[common.SearchEngineGroupType][]string{
 	common.SearchEngineGroupTypeAll:          {"title", "author", "full_content", "content", "introduction"}, // all
@@ -473,29 +458,29 @@ func (srv *SearchService) langQueryMap(group common.SearchEngineGroup, boost int
 
 func (srv *SearchService) initLibTypeList() (libTypeList []common.SearchLibTypeItem) {
 	libTypeList = append(libTypeList, common.SearchLibTypeItem{
-		Id:    libTypeAchievementId,
-		Name:  libTypeAchievementZH,
-		EName: libTypeAchievement,
+		Id:    1,
+		Name:  "名称1",
+		EName: "dynamic",
 		Count: 0,
 	}, common.SearchLibTypeItem{
-		Id:    libTypeCaseId,
-		Name:  libTypeCaseZH,
-		EName: libTypeCase,
+		Id:    2,
+		Name:  "名称2",
+		EName: "law",
 		Count: 0,
 	}, common.SearchLibTypeItem{
-		Id:    libTypeDynamicId,
-		Name:  libTypeDynamicZH,
-		EName: libTypeDynamic,
+		Id:    3,
+		Name:  "名称3",
+		EName: "case",
 		Count: 0,
 	}, common.SearchLibTypeItem{
-		Id:    libTypeLawId,
-		Name:  libTypeLawZH,
-		EName: libTypeLaw,
+		Id:    4,
+		Name:  "名称4",
+		EName: "achievement",
 		Count: 0,
 	}, common.SearchLibTypeItem{
-		Id:    libTypeReportId,
-		Name:  libTypeReportZH,
-		EName: libTypeReport,
+		Id:    5,
+		Name:  "名称5",
+		EName: "report",
 		Count: 0,
 	})
 	return
