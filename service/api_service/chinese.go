@@ -17,7 +17,7 @@ type ChineseService struct {
 
 func (srv *ChineseService) ChineseGetNavList() (response *common.ChineseBookNavResponse, apiErr api.Error) {
 	response = &common.ChineseBookNavResponse{}
-	model.Default().Model(&model.ChineseBookName{}).Where("status = 1").Debug().
+	model.DefaultWeb().Model(&model.ChineseBookName{}).Where("status = 1").Debug().
 		Order("s_sort desc").Order("id asc").
 		Find(&response.List)
 	return
@@ -29,7 +29,7 @@ func (srv *ChineseService) ChineseGetBookList(page, level int) (response *common
 	response = &common.ChineseBookResponse{}
 
 	var total int64
-	model.Default().Model(&model.ChineseBook{}).Where("type = ? and status = 1", level).Debug().
+	model.DefaultWeb().Model(&model.ChineseBook{}).Where("type = ? and status = 1", level).Debug().
 		Count(&total).
 		Order("position desc").
 		Limit(size).
@@ -40,7 +40,7 @@ func (srv *ChineseService) ChineseGetBookList(page, level int) (response *common
 
 	var bookInfoCountList []common.ResponseBookInfoCount
 	sql := `SELECT book_id,count(id) as book_count FROM s_chinese_picture_info GROUP BY book_id`
-	model.Default().Model(&model.ChineseBookInfo{}).Debug().
+	model.DefaultWeb().Model(&model.ChineseBookInfo{}).Debug().
 		Raw(sql).Scan(&bookInfoCountList)
 
 	var temp common.ResponseChineseBook
@@ -74,7 +74,7 @@ func (srv *ChineseService) ChineseGetBookList(page, level int) (response *common
 
 func (srv *ChineseService) ChineseGetBookInfo(bookId string) (response *common.ChineseBookInfoResponse, apiErr api.Error) {
 	response = &common.ChineseBookInfoResponse{}
-	model.Default().Model(&model.ChineseBookInfo{}).Where("book_id = ?", bookId).Debug().
+	model.DefaultWeb().Model(&model.ChineseBookInfo{}).Where("book_id = ?", bookId).Debug().
 		Order("position asc").
 		Find(&response.Info)
 	return

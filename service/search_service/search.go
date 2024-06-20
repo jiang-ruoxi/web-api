@@ -31,7 +31,7 @@ type SearchService struct {
 
 func (srv *SearchService) SearchList(ctx context.Context, req *common.SearchRequest) (response common.SearchListResponse, apiErr api.Error) {
 	var sectionList []model.Section
-	if err := model.Default().Model(&model.Section{}).WithContext(ctx).Find(&sectionList).Error; err != nil {
+	if err := model.DefaultWeb().Model(&model.Section{}).WithContext(ctx).Find(&sectionList).Error; err != nil {
 		log.SugarContext(ctx).Errorw("SearchService Section List Find", "error", err)
 	}
 	// 获取左侧分组栏目
@@ -110,8 +110,7 @@ func (srv *SearchService) fetchGroupData(ctx context.Context, req *common.Search
 	}
 
 	libTypeDataList := srv.makeLibTypeData()
-	sectionListData, yearDataListData, countryDataListData, keywordListData, libTypeDataListNew := srv.dealGroupStatisticsCount(contentGroupConditions, libTypeDataList, sectionList, req.FilterLibs, req.Libs)
-	//sectionListData, yearDataListData, countryDataListData, keywordListData, libTypeDataListNew := se.dealAggregations(contentGroupConditions, libTypeDataList, sectionList, req.FilterLibs, req.Libs)
+	sectionListData, yearDataListData, countryDataListData, keywordListData, libTypeDataListNew := srv.dealGroupStatisticsCount(contentGroupConditions, libTypeDataList, sectionList)
 	srv.sortSliceList(libTypeDataListNew, sectionListData, yearDataListData, countryDataListData, keywordListData)
 	statisticsItem.LibTypeList = libTypeDataListNew  //资源库列表
 	statisticsItem.SectionList = sectionListData     // 栏目/类型列表

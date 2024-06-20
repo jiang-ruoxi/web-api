@@ -21,7 +21,7 @@ func (srv *PoetryService) PoetryGetChengList(page, level int) (response *common.
 	response = &common.ChineseChengYuResponse{}
 
 	var total int64
-	model.Default().Model(&model.ChengYU{}).Where("level = ?", level).Debug().
+	model.DefaultWeb().Model(&model.ChengYU{}).Where("level = ?", level).Debug().
 		Count(&total).
 		Order("position desc").
 		Limit(size).
@@ -35,7 +35,7 @@ func (srv *PoetryService) PoetryGetChengList(page, level int) (response *common.
 
 func (srv *PoetryService) PoetryGetChengInfo(id int) (response *common.ChineseChengYuInfoResponse, apiErr api.Error) {
 	response = &common.ChineseChengYuInfoResponse{}
-	model.Default().Model(&model.ChengYU{}).Where("id = ?", id).Debug().First(&response.Info)
+	model.DefaultWeb().Model(&model.ChengYU{}).Where("id = ?", id).Debug().First(&response.Info)
 	fields := strings.Fields(response.Info.Story)
 	response.Info.StoryList = fields
 	return response, nil
@@ -47,7 +47,7 @@ func (srv *PoetryService) PoetryGetSchoolList(page int) (response *common.School
 	response = &common.SchoolPoetryListResponse{}
 
 	var total int64
-	model.Default().Model(&model.Poetry{}).Debug().
+	model.DefaultWeb().Model(&model.Poetry{}).Debug().
 		Count(&total).
 		Raw("SELECT id,poetry_id,title,grade_id,grade,grade_level,author,dynasty FROM s_school_poetry limit ? offset ?", size, offset).Scan(&response.List)
 

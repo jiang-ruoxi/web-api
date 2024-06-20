@@ -20,7 +20,7 @@ func (srv *AlbumService) AlbumGetList(page int) (response *common.ChineseAlbumRe
 	response = &common.ChineseAlbumResponse{}
 
 	var total int64
-	model.Default().Model(&model.ChineseBookAlbum{}).Debug().
+	model.DefaultWeb().Model(&model.ChineseBookAlbum{}).Debug().
 		Count(&total).
 		Order("position desc").
 		Limit(size).
@@ -35,7 +35,7 @@ func (srv *AlbumService) AlbumGetList(page int) (response *common.ChineseAlbumRe
 func (srv *AlbumService) AlbumGetListInfo(bookId string) (response *common.ChineseAlbumListInfoResponse, apiErr api.Error) {
 	response = &common.ChineseAlbumListInfoResponse{}
 	var total int64
-	model.Default().Model(&model.ChineseAlbumInfo{}).Debug().
+	model.DefaultWeb().Model(&model.ChineseAlbumInfo{}).Debug().
 		Where("book_id = ?", bookId).Count(&total).
 		Order("position desc").Find(&response.List)
 	response.Total = total
@@ -47,6 +47,6 @@ func (srv *AlbumService) AlbumGetListInfo(bookId string) (response *common.Chine
 
 func (srv *AlbumService) AlbumGetInfo(id int) (response *common.ChineseAlbumInfoResponse, apiErr api.Error) {
 	response = &common.ChineseAlbumInfoResponse{}
-	model.Default().Model(&model.ChineseAlbumInfo{}).Debug().Where("id = ?", id).First(&response.Info)
+	model.DefaultWeb().Model(&model.ChineseAlbumInfo{}).Debug().Where("id = ?", id).First(&response.Info)
 	return response, nil
 }

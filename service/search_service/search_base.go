@@ -9,9 +9,7 @@ import (
 )
 
 const searchFrom int = 0
-const searchMaxSize int = 50000
 const statusEnable int = 1                      // 状态:1已发布 2未发布
-const deleteTime int = 0                        //没有删除
 const libTypeDynamicId int = 1                  //资讯类型ID
 const libTypeDynamic string = "dynamic"         //资讯类型
 const libTypeDynamicZH string = "动态资讯"          //资讯类型
@@ -78,9 +76,6 @@ func (srv *SearchService) field(behavior common.SearchEngineGroupBehavior, boost
 			if boost > 1 {
 				// 短语
 				conditions = append(conditions, es.QueryMap{"match_phrase": es.QueryMap{fmt.Sprintf("%s", field): es.QueryMap{"query": value, "boost": boost * 128}}})
-
-				// 分词
-				//conditions = append(conditions, es.QueryMap{"match": es.QueryMap{fmt.Sprintf("%s", field): es.QueryMap{"query": value, "boost": boost}}})
 			} else {
 				// 短语
 				conditions = append(conditions, es.QueryMap{"match_phrase": es.QueryMap{fmt.Sprintf("%s", field): es.QueryMap{"query": value, "boost": boost * 16}}})
@@ -153,7 +148,7 @@ func (srv *SearchService) sortSliceList(libTypeDataList []common.SearchLibTypeIt
 	})
 }
 
-func (srv *SearchService) dealGroupStatisticsCount(content common.SearchResponseBody, libTypeDataList []common.SearchLibTypeItem, sectionList []model.Section, filterLibs []string, libs []string) (sectionDataList []common.SearchSectionItem, yearDataList []common.SearchYearItem, countryDataList []common.SearchCountryItem, keywordDataList []common.SearchKeywordItem, libTypeList []common.SearchLibTypeItem) {
+func (srv *SearchService) dealGroupStatisticsCount(content common.SearchResponseBody, libTypeDataList []common.SearchLibTypeItem, sectionList []model.Section) (sectionDataList []common.SearchSectionItem, yearDataList []common.SearchYearItem, countryDataList []common.SearchCountryItem, keywordDataList []common.SearchKeywordItem, libTypeList []common.SearchLibTypeItem) {
 	var aggregationsList = content.Aggregations
 	keywordItemList := aggregationsList["group_by_keywords"].Buckets
 	for _, item := range keywordItemList {
@@ -215,264 +210,6 @@ func (srv *SearchService) dealGroupStatisticsCount(content common.SearchResponse
 		sectionDataList = append(sectionDataList, sectionItem)
 	}
 	return
-}
-
-func (srv *SearchService) dealAggregations(content common.SearchResponseBody, libTypeDataList []common.SearchLibTypeItem, sectionList []model.Section, filterLibs []string, libs []string) (sectionDataList []common.SearchSectionItem, yearDataList []common.SearchYearItem, countryDataList []common.SearchCountryItem, keywordDataList []common.SearchKeywordItem, libTypeList []common.SearchLibTypeItem) {
-	// 输出分组统计结果
-	keywordCount := make(map[string]int)
-	sectionCount := make(map[string]int)
-	yearCount := make(map[string]int)
-	countryCount := make(map[string]int)
-	achievementCount := make(map[string]int)
-	caseCount := make(map[string]int)
-	dynamicCount := make(map[string]int)
-	lawCount := make(map[string]int)
-	reportCount := make(map[string]int)
-
-	for _, hit := range content.Hits.Hits {
-		var item = hit.Source
-		// 统计关键词出现次数
-		if len(filterLibs) < 1 && len(libs) < 1 {
-			achievementCount, caseCount, dynamicCount, lawCount, reportCount = srv.groupLibTypeCount(item, achievementCount, caseCount, dynamicCount, lawCount, reportCount)
-			keywordCount, sectionCount, yearCount, countryCount = srv.groupLibTypeOtherCount(item, keywordCount, sectionCount, yearCount, countryCount)
-		}
-		if len(filterLibs) < 1 && len(libs) > 0 {
-			for _, libItem := range libTypeDataList {
-				achievementCount, caseCount, dynamicCount, lawCount, reportCount = srv.groupForRangeLibTypeCount(libItem.EName, item, achievementCount, caseCount, dynamicCount, lawCount, reportCount)
-			}
-			for _, lib := range libs {
-				keywordCount, sectionCount, yearCount, countryCount = srv.groupForRangeOtherCount(lib, item, keywordCount, sectionCount, yearCount, countryCount)
-			}
-		}
-		if len(filterLibs) > 0 && len(libs) < 1 {
-			for _, filterLib := range filterLibs {
-				achievementCount, caseCount, dynamicCount, lawCount, reportCount = srv.groupForRangeLibTypeCount(filterLib, item, achievementCount, caseCount, dynamicCount, lawCount, reportCount)
-				keywordCount, sectionCount, yearCount, countryCount = srv.groupForRangeOtherCount(filterLib, item, keywordCount, sectionCount, yearCount, countryCount)
-			}
-		}
-		if len(filterLibs) > 0 && len(libs) > 0 {
-			for _, filterLib := range filterLibs {
-				achievementCount, caseCount, dynamicCount, lawCount, reportCount = srv.groupForRangeLibTypeCount(filterLib, item, achievementCount, caseCount, dynamicCount, lawCount, reportCount)
-			}
-			for _, lib := range libs {
-				keywordCount, sectionCount, yearCount, countryCount = srv.groupForRangeOtherCount(lib, item, keywordCount, sectionCount, yearCount, countryCount)
-			}
-		}
-	}
-
-	// 统计关键词
-	for keyword, count := range keywordCount {
-		keywordDataList = append(keywordDataList, common.SearchKeywordItem{
-			Keyword: keyword,
-			Count:   int64(count),
-		})
-	}
-
-	// 统计年
-	for year, count := range yearCount {
-		yearDataList = append(yearDataList, common.SearchYearItem{
-			Name:  year,
-			Count: int64(count),
-		})
-	}
-
-	// 统计国家
-	for country, count := range countryCount {
-		countryDataList = append(countryDataList, common.SearchCountryItem{
-			Name:  country,
-			Count: int64(count),
-		})
-	}
-
-	// 统计栏目
-	for section, count := range sectionCount {
-		sectionDataList = append(sectionDataList, common.SearchSectionItem{
-			Name:  section,
-			Count: int64(count),
-		})
-	}
-
-	for idx, _ := range sectionDataList {
-		for sIdx, _ := range sectionList {
-			if sectionDataList[idx].Name != "" && sectionDataList[idx].Name == sectionList[sIdx].Name {
-				sectionDataList[idx].ID = sectionList[sIdx].ID
-			}
-		}
-	}
-
-	for idx, _ := range libTypeDataList {
-		if libTypeDataList[idx].EName == libTypeAchievement {
-			libTypeDataList[idx].Count = int64(achievementCount[libTypeAchievement])
-		}
-		if libTypeDataList[idx].EName == libTypeCase {
-			libTypeDataList[idx].Count = int64(caseCount[libTypeCase])
-		}
-		if libTypeDataList[idx].EName == libTypeDynamic {
-			libTypeDataList[idx].Count = int64(dynamicCount[libTypeDynamic])
-		}
-		if libTypeDataList[idx].EName == libTypeLaw {
-			libTypeDataList[idx].Count = int64(lawCount[libTypeLaw])
-		}
-		if libTypeDataList[idx].EName == libTypeReport {
-			libTypeDataList[idx].Count = int64(reportCount[libTypeReport])
-		}
-	}
-	return sectionDataList, yearDataList, countryDataList, keywordDataList, libTypeDataList
-}
-
-func (srv *SearchService) groupLibTypeCount(source common.SearchResponseItem, achievementCount, caseCount, dynamicCount, lawCount, reportCount map[string]int) (achievementTotal, caseTotal, dynamicTotal, lawTotal, reportTotal map[string]int) {
-	if source.LibType == libTypeAchievement && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		achievementCount[libTypeAchievement]++
-	}
-	if source.LibType == libTypeCase && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		caseCount[libTypeCase]++
-	}
-	if source.LibType == libTypeDynamic && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		dynamicCount[libTypeDynamic]++
-	}
-	if source.LibType == libTypeLaw && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		lawCount[libTypeLaw]++
-	}
-	if source.LibType == libTypeReport && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		reportCount[libTypeReport]++
-	}
-	return achievementCount, caseCount, dynamicCount, lawCount, reportCount
-}
-
-func (srv *SearchService) groupLibTypeOtherCount(source common.SearchResponseItem, keywordCount, sectionCount, yearCount, countryCount map[string]int) (keywordTotal, sectionTotal, yearTotal, countryTotal map[string]int) {
-	if source.Year != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		yearCount[source.Year]++
-	}
-	if source.Country != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		countryCount[source.Country]++
-	}
-	if source.SectionName != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-		sectionCount[source.SectionName]++
-	}
-	keywords := source.Keywords
-	for _, keyword := range keywords {
-		if keyword != "" {
-			keywordCount[keyword]++
-		}
-	}
-	return keywordCount, sectionCount, yearCount, countryCount
-}
-
-func (srv *SearchService) groupForRangeLibTypeCount(libTypeName string, source common.SearchResponseItem, achievementCount, caseCount, dynamicCount, lawCount, reportCount map[string]int) (achievementTotal, caseTotal, dynamicTotal, lawTotal, reportTotal map[string]int) {
-	switch libTypeName {
-	case libTypeAchievement:
-		if source.LibType == libTypeAchievement && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			achievementCount[libTypeAchievement]++
-		}
-	case libTypeCase:
-		if source.LibType == libTypeCase && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			caseCount[libTypeCase]++
-		}
-	case libTypeDynamic:
-		if source.LibType == libTypeDynamic && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			dynamicCount[libTypeDynamic]++
-		}
-	case libTypeLaw:
-		if source.LibType == libTypeLaw && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			lawCount[libTypeLaw]++
-		}
-	case libTypeReport:
-		if source.LibType == libTypeReport && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			reportCount[libTypeReport]++
-		}
-	}
-	return achievementCount, caseCount, dynamicCount, lawCount, reportCount
-}
-
-func (srv *SearchService) groupForRangeOtherCount(libTypeName string, source common.SearchResponseItem, keywordCount, sectionCount, yearCount, countryCount map[string]int) (keywordTotal, sectionTotal, yearTotal, countryTotal map[string]int) {
-	switch libTypeName {
-	case libTypeAchievement:
-		if source.LibType == libTypeAchievement && source.Year != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			yearCount[source.Year]++
-		}
-		if source.LibType == libTypeAchievement && source.Country != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			countryCount[source.Country]++
-		}
-		if source.LibType == libTypeAchievement && source.SectionName != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			sectionCount[source.SectionName]++
-		}
-		if source.LibType == libTypeAchievement && len(source.Keywords) > 0 {
-			for _, keyword := range source.Keywords {
-				if keyword != "" {
-					keywordCount[keyword]++
-				}
-			}
-		}
-	case libTypeCase:
-		if source.LibType == libTypeCase && source.Year != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			yearCount[source.Year]++
-		}
-		if source.LibType == libTypeCase && source.Country != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			countryCount[source.Country]++
-		}
-		if source.LibType == libTypeCase && source.SectionName != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			sectionCount[source.SectionName]++
-		}
-		if source.LibType == libTypeCase && len(source.Keywords) > 0 {
-			for _, keyword := range source.Keywords {
-				if keyword != "" {
-					keywordCount[keyword]++
-				}
-			}
-		}
-	case libTypeDynamic:
-		if source.LibType == libTypeDynamic && source.Year != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			yearCount[source.Year]++
-		}
-		if source.LibType == libTypeDynamic && source.Country != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			countryCount[source.Country]++
-		}
-		if source.LibType == libTypeDynamic && source.SectionName != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			sectionCount[source.SectionName]++
-		}
-		if source.LibType == libTypeDynamic && len(source.Keywords) > 0 {
-			for _, keyword := range source.Keywords {
-				if keyword != "" {
-					keywordCount[keyword]++
-				}
-			}
-		}
-	case libTypeLaw:
-		if source.LibType == libTypeLaw && source.Year != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			yearCount[source.Year]++
-		}
-		if source.LibType == libTypeLaw && source.Country != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			countryCount[source.Country]++
-		}
-		if source.LibType == libTypeLaw && source.SectionName != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			sectionCount[source.SectionName]++
-		}
-		if source.LibType == libTypeLaw && len(source.Keywords) > 0 {
-			for _, keyword := range source.Keywords {
-				if keyword != "" {
-					keywordCount[keyword]++
-				}
-			}
-		}
-	case libTypeReport:
-		if source.LibType == libTypeReport && source.Year != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			yearCount[source.Year]++
-		}
-		if source.LibType == libTypeReport && source.Country != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			countryCount[source.Country]++
-		}
-		if source.LibType == libTypeReport && source.SectionName != "" && source.Status == statusEnable && source.DeleteTime == deleteTime {
-			sectionCount[source.SectionName]++
-		}
-		if source.LibType == libTypeReport && len(source.Keywords) > 0 {
-			for _, keyword := range source.Keywords {
-				if keyword != "" {
-					keywordCount[keyword]++
-				}
-			}
-		}
-	}
-	return keywordCount, sectionCount, yearCount, countryCount
 }
 
 func (srv *SearchService) searchGroupQueryBody(query Boolean) (queryBody es.QueryMap) {

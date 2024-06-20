@@ -20,8 +20,7 @@ type IndexResponse struct {
 
 func (srv *IndexService) Index(ctx context.Context) (response *IndexResponse, apiErr api.Error) {
 	response = &IndexResponse{}
-	model.Default().Where("status = ?", 1)
-	if err := model.Default().Where("status = ?", 1).Order("id DESC").Limit(10).Find(&response.LexiconList).Error; err != nil {
+	if err := model.DefaultWeb().Where("status = ?", 1).Order("id DESC").Limit(10).Find(&response.LexiconList).Error; err != nil {
 		return response, errs.NewError(err.Error())
 	}
 	return response, nil

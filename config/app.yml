@@ -4,6 +4,9 @@ db:
   web:
     dialect: mysql
     dsn: root:123456@tcp(127.0.0.1:3306)/web?charset=utf8mb4&parseTime=True&loc=Local
+  market:
+    dialect: mysql
+    dsn: root:123456@tcp(127.0.0.1:3306)/market-api?charset=utf8mb4&parseTime=True&loc=Local
 redis:
   clients:
     web:

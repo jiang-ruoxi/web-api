@@ -5,5 +5,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Default 默认数据库
-func Default() *gorm.DB { return db.MustGet("web") }
+func DefaultWeb() *gorm.DB { return db.MustGet("web") }
+
+func DefaultMarket() *gorm.DB { return db.MustGet("market") }
