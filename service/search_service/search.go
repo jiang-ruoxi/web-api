@@ -32,12 +32,12 @@ type SearchService struct {
 func (srv *SearchService) SearchList(ctx context.Context, req *common.SearchRequest) (response common.SearchListResponse, apiErr api.Error) {
 	var sectionList []model.Section
 	if err := model.Default().Model(&model.Section{}).WithContext(ctx).Find(&sectionList).Error; err != nil {
-		log.SugarContext(ctx).Errorw("SearchHandler.SearchEngine Section List Find", "error", err)
+		log.SugarContext(ctx).Errorw("SearchService Section List Find", "error", err)
 	}
 	// 获取左侧分组栏目
 	groupDataList, err := srv.fetchGroupData(ctx, req, sectionList)
 	if err != nil {
-		log.SugarContext(ctx).Errorw("SearchEngine.Search fetchGroupData 失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService fetchGroupData 失败", "err", err)
 		return response, errs.Failed
 	}
 	response.LibTypeList = groupDataList.LibTypeList
@@ -49,7 +49,7 @@ func (srv *SearchService) SearchList(ctx context.Context, req *common.SearchRequ
 	// 获取右侧数据库列表
 	dataList, count, err := srv.fetchSearchData(ctx, req, sectionList)
 	if err != nil {
-		log.SugarContext(ctx).Errorw("SearchEngine.Search fetchSearchData 失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService fetchSearchData 失败", "err", err)
 		return response, errs.Failed
 	}
 	response.List = dataList
@@ -70,14 +70,14 @@ func (srv *SearchService) fetchGroupData(ctx context.Context, req *common.Search
 
 	var bodyGroupConditions bytes.Buffer
 	if err := json.NewEncoder(&bodyGroupConditions).Encode(srv.searchGroupQueryBody(queryGroup)); nil != err {
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchGroupData json.NewEncoder(&bodyGroupConditions) 失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService.fetchGroupData json.NewEncoder(&bodyGroupConditions) 失败", "err", err)
 		return statisticsItem, err
 	}
 
 	var contentGroupConditions common.SearchResponseBody
 	responseGroup, err := srv.engine.Search(
 		srv.engine.Search.WithContext(ctx),
-		srv.engine.Search.WithIndex("jp.language.lib.alias"),
+		srv.engine.Search.WithIndex(viper.GetStringSlice(viper.GetString("elasticsearch.engine.lang_indices"))...),
 		srv.engine.Search.WithIgnoreUnavailable(true),
 		srv.engine.Search.WithBody(&bodyGroupConditions),
 		srv.engine.Search.WithFrom(searchFrom),
@@ -85,7 +85,7 @@ func (srv *SearchService) fetchGroupData(ctx context.Context, req *common.Search
 	)
 
 	if err != nil {
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchGroupData se.engine.Search bodyGroupConditions 失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService.fetchGroupData bodyGroupConditions 失败", "err", err)
 		return statisticsItem, err
 	}
 
@@ -96,16 +96,16 @@ func (srv *SearchService) fetchGroupData(ctx context.Context, req *common.Search
 	if responseGroup.IsError() {
 		bs, err := io.ReadAll(responseGroup.Body)
 		if nil != err {
-			log.SugarContext(ctx).Errorw("SearchEngine.fetchGroupData 读取ES响应错误信息失败", "err", err)
+			log.SugarContext(ctx).Errorw("SearchService.fetchGroupData 读取ES响应错误信息失败", "err", err)
 			return statisticsItem, err
 		}
 
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchGroupData 搜索失败", "err", string(bs))
+		log.SugarContext(ctx).Errorw("SearchService.fetchGroupData 搜索失败", "err", string(bs))
 		return statisticsItem, err
 	}
 
 	if err := json.NewDecoder(responseGroup.Body).Decode(&contentGroupConditions); nil != err {
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchGroupData 解析ES响应失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService.fetchGroupData 解析ES响应失败", "err", err)
 		return statisticsItem, err
 	}
 
@@ -138,7 +138,7 @@ func (srv *SearchService) fetchSearchData(ctx context.Context, req *common.Searc
 
 	var body bytes.Buffer
 	if err := json.NewEncoder(&body).Encode(srv.searchQueryBody(query)); nil != err {
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchSearchData json.NewEncoder(&body) 失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService.fetchSearchData json.NewEncoder(&body) 失败", "err", err)
 		return searchData, count, err
 	}
 	var content common.SearchResponseBody
@@ -152,7 +152,7 @@ func (srv *SearchService) fetchSearchData(ctx context.Context, req *common.Searc
 		srv.engine.Search.WithSize(req.N),
 	)
 	if err != nil {
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchSearchData se.engine.Search 失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService.fetchSearchData Search 失败", "err", err)
 		return searchData, count, err
 	}
 
@@ -163,16 +163,16 @@ func (srv *SearchService) fetchSearchData(ctx context.Context, req *common.Searc
 	if response.IsError() {
 		bs, err := io.ReadAll(response.Body)
 		if nil != err {
-			log.SugarContext(ctx).Errorw("SearchEngine.fetchSearchData 读取ES响应错误信息失败", "err", err)
+			log.SugarContext(ctx).Errorw("SearchService.fetchSearchData 读取ES响应错误信息失败", "err", err)
 			return searchData, count, err
 		}
 
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchSearchData 搜索失败", "err", string(bs))
+		log.SugarContext(ctx).Errorw("SearchService.fetchSearchData 搜索失败", "err", string(bs))
 		return searchData, count, err
 	}
 
 	if err := json.NewDecoder(response.Body).Decode(&content); nil != err {
-		log.SugarContext(ctx).Errorw("SearchEngine.fetchSearchData 解析ES响应失败", "err", err)
+		log.SugarContext(ctx).Errorw("SearchService.fetchSearchData 解析ES响应失败", "err", err)
 		return searchData, count, err
 	}
 	searchData = srv.formatSearchData(content, srv.initLibTypeList(), sectionList)
