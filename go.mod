@@ -14,6 +14,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.19.0
 	github.com/urfave/cli/v2 v2.27.2
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.18
 	golang.org/x/sync v0.7.0
 	gorm.io/gorm v1.25.10
 	gorm.io/plugin/soft_delete v1.2.1

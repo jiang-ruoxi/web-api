@@ -1,8 +1,8 @@
 package search_service
 
 import (
-	"api/common"
-	"api/model"
+	"api/common/search"
+	"api/model/web"
 	"fmt"
 	"github.com/jiang-ruoxi/gopkg/es"
 	"sort"
@@ -11,52 +11,52 @@ import (
 const searchFrom int = 0
 const statusEnable int = 1
 
-var LangFieldMapping = map[common.SearchEngineGroupType][]string{
-	common.SearchEngineGroupTypeAll:          {"title", "author", "full_content", "content", "introduction"}, // all
-	common.SearchEngineGroupTypeFC:           {"full_content"},                                               // 全文
-	common.SearchEngineGroupTypeTitle:        {"title"},                                                      // 标题
-	common.SearchEngineGroupTypeIntroduction: {"introduction"},                                               // 简介
-	common.SearchEngineGroupTypeAuthor:       {"author"},                                                     // 作者
-	common.SearchEngineGroupTypeContent:      {"content"},                                                    // 内容
+var LangFieldMapping = map[search.SearchEngineGroupType][]string{
+	search.SearchEngineGroupTypeAll:          {"title", "author", "full_content", "content", "introduction"}, // all
+	search.SearchEngineGroupTypeFC:           {"full_content"},                                               // 全文
+	search.SearchEngineGroupTypeTitle:        {"title"},                                                      // 标题
+	search.SearchEngineGroupTypeIntroduction: {"introduction"},                                               // 简介
+	search.SearchEngineGroupTypeAuthor:       {"author"},                                                     // 作者
+	search.SearchEngineGroupTypeContent:      {"content"},                                                    // 内容
 }
 
-var LangOrderMapping = map[common.SearchEngineGroupOrder]string{
-	common.SearchEngineGroupOrderDefault:     "id:desc",
-	common.SearchEngineGroupOrderScoreAsc:    "_score:asc",
-	common.SearchEngineGroupOrderScoreDesc:   "_score:desc",
-	common.SearchEngineGroupOrderPublishAsc:  "publish_time_order:asc",
-	common.SearchEngineGroupOrderPublishDesc: "publish_time_order:desc",
+var LangOrderMapping = map[search.SearchEngineGroupOrder]string{
+	search.SearchEngineGroupOrderDefault:     "id:desc",
+	search.SearchEngineGroupOrderScoreAsc:    "_score:asc",
+	search.SearchEngineGroupOrderScoreDesc:   "_score:desc",
+	search.SearchEngineGroupOrderPublishAsc:  "publish_time_order:asc",
+	search.SearchEngineGroupOrderPublishDesc: "publish_time_order:desc",
 }
 
 func (srv *SearchService) sortOrderMap(sortOrder int8) (sort []string) {
 	var langOrder string
 	switch sortOrder {
 	case 1:
-		langOrder = LangOrderMapping[common.SearchEngineGroupOrderScoreAsc]
+		langOrder = LangOrderMapping[search.SearchEngineGroupOrderScoreAsc]
 	case -1:
-		langOrder = LangOrderMapping[common.SearchEngineGroupOrderScoreDesc]
+		langOrder = LangOrderMapping[search.SearchEngineGroupOrderScoreDesc]
 	case 2:
-		langOrder = LangOrderMapping[common.SearchEngineGroupOrderPublishAsc]
+		langOrder = LangOrderMapping[search.SearchEngineGroupOrderPublishAsc]
 	case -2:
-		langOrder = LangOrderMapping[common.SearchEngineGroupOrderPublishDesc]
+		langOrder = LangOrderMapping[search.SearchEngineGroupOrderPublishDesc]
 	default:
-		langOrder = LangOrderMapping[common.SearchEngineGroupOrderDefault]
+		langOrder = LangOrderMapping[search.SearchEngineGroupOrderDefault]
 	}
 
 	sort = append(sort, langOrder)
 	if langOrder == "_score:desc" {
-		langOrder = LangOrderMapping[common.SearchEngineGroupOrderPublishDesc]
+		langOrder = LangOrderMapping[search.SearchEngineGroupOrderPublishDesc]
 		sort = append(sort, langOrder)
 	}
 
 	return
 }
 
-func (srv *SearchService) field(behavior common.SearchEngineGroupBehavior, boost int, field string, rangeMin int64, rangeMax int64, values []string) []es.QueryMap {
+func (srv *SearchService) field(behavior search.SearchEngineGroupBehavior, boost int, field string, rangeMin int64, rangeMax int64, values []string) []es.QueryMap {
 	var conditions []es.QueryMap
 
 	switch behavior {
-	case common.SearchEngineGroupBehaviorMatch:
+	case search.SearchEngineGroupBehaviorMatch:
 		for _, value := range values {
 			if boost > 1 {
 				// 短语
@@ -69,19 +69,19 @@ func (srv *SearchService) field(behavior common.SearchEngineGroupBehavior, boost
 				conditions = append(conditions, es.QueryMap{"match": es.QueryMap{fmt.Sprintf("%s", field): es.QueryMap{"query": value, "boost": boost}}})
 			}
 		}
-	case common.SearchEngineGroupBehaviorMatchPhrase:
+	case search.SearchEngineGroupBehaviorMatchPhrase:
 		conditions = append(conditions, es.QueryMap{"terms": es.QueryMap{fmt.Sprintf("%s.keyword", field): values, "boost": boost * 128}})
 		for _, value := range values {
 			// 短语
 			conditions = append(conditions, es.QueryMap{"match_phrase": es.QueryMap{fmt.Sprintf("%s.base.base", field): es.QueryMap{"query": value, "boost": boost}}})
 		}
-	case common.SearchEngineGroupBehaviorTerms:
+	case search.SearchEngineGroupBehaviorTerms:
 		conditions = append(conditions, es.QueryMap{"terms": es.QueryMap{fmt.Sprintf("%s.keyword", field): values, "boost": boost * 128}})
-	case common.SearchEngineGroupBehaviorPrefix:
+	case search.SearchEngineGroupBehaviorPrefix:
 		for _, value := range values {
 			conditions = append(conditions, es.QueryMap{"prefix": es.QueryMap{fmt.Sprintf("%s.keyword", field): es.QueryMap{"value": value, "boost": boost}}})
 		}
-	case common.SearchEngineGroupBehaviorRange:
+	case search.SearchEngineGroupBehaviorRange:
 		if rangeMin > 0 {
 			conditions = append(conditions, es.QueryMap{"range": es.QueryMap{fmt.Sprintf("%s.long", field): es.QueryMap{"gte": rangeMin, "boost": boost}}})
 		}
@@ -93,9 +93,9 @@ func (srv *SearchService) field(behavior common.SearchEngineGroupBehavior, boost
 	return conditions
 }
 
-func (srv *SearchService) makeLibTypeData() (libTypeDataList []common.SearchLibTypeItem) {
+func (srv *SearchService) makeLibTypeData() (libTypeDataList []search.SearchLibTypeItem) {
 	libTypeList := srv.initLibTypeList()
-	var libTypeData common.SearchLibTypeItem
+	var libTypeData search.SearchLibTypeItem
 	for _, item := range libTypeList {
 		libTypeData.Id = item.Id
 		libTypeData.Name = item.Name
@@ -106,7 +106,7 @@ func (srv *SearchService) makeLibTypeData() (libTypeDataList []common.SearchLibT
 	return
 }
 
-func (srv *SearchService) sortSliceList(libTypeDataList []common.SearchLibTypeItem, sectionDataList []common.SearchSectionItem, yearDataList []common.SearchYearItem, countryDataList []common.SearchCountryItem, keywordDataList []common.SearchKeywordItem) {
+func (srv *SearchService) sortSliceList(libTypeDataList []search.SearchLibTypeItem, sectionDataList []search.SearchSectionItem, yearDataList []search.SearchYearItem, countryDataList []search.SearchCountryItem, keywordDataList []search.SearchKeywordItem) {
 	sort.Slice(libTypeDataList, func(i, j int) bool {
 		return libTypeDataList[i].Name < libTypeDataList[j].Name
 	})
@@ -133,21 +133,21 @@ func (srv *SearchService) sortSliceList(libTypeDataList []common.SearchLibTypeIt
 	})
 }
 
-func (srv *SearchService) dealGroupStatisticsCount(content common.SearchResponseBody, libTypeDataList []common.SearchLibTypeItem, sectionList []model.Section) (sectionDataList []common.SearchSectionItem, yearDataList []common.SearchYearItem, countryDataList []common.SearchCountryItem, keywordDataList []common.SearchKeywordItem, libTypeList []common.SearchLibTypeItem) {
+func (srv *SearchService) dealGroupStatisticsCount(content search.SearchResponseBody, libTypeDataList []search.SearchLibTypeItem, sectionList []web.Section) (sectionDataList []search.SearchSectionItem, yearDataList []search.SearchYearItem, countryDataList []search.SearchCountryItem, keywordDataList []search.SearchKeywordItem, libTypeList []search.SearchLibTypeItem) {
 	var aggregationsList = content.Aggregations
 	keywordItemList := aggregationsList["group_by_keywords"].Buckets
 	for _, item := range keywordItemList {
 		if item.Key.(string) == "" {
 			continue
 		}
-		keywordDataList = append(keywordDataList, common.SearchKeywordItem{
+		keywordDataList = append(keywordDataList, search.SearchKeywordItem{
 			Keyword: item.Key.(string),
 			Count:   int64(item.DocCount),
 		})
 	}
 	libTypeItemList := aggregationsList["group_by_lib_type"].Buckets
 	for idx, _ := range libTypeDataList {
-		var libType common.SearchLibTypeItem
+		var libType search.SearchLibTypeItem
 		libType.Id = libTypeDataList[idx].Id
 		libType.Name = libTypeDataList[idx].Name
 		libType.EName = libTypeDataList[idx].EName
@@ -167,7 +167,7 @@ func (srv *SearchService) dealGroupStatisticsCount(content common.SearchResponse
 		if item.Key.(string) == "" {
 			continue
 		}
-		yearDataList = append(yearDataList, common.SearchYearItem{
+		yearDataList = append(yearDataList, search.SearchYearItem{
 			Name:  item.Key.(string),
 			Count: int64(item.DocCount),
 		})
@@ -177,13 +177,13 @@ func (srv *SearchService) dealGroupStatisticsCount(content common.SearchResponse
 		if item.Key.(string) == "" {
 			continue
 		}
-		countryDataList = append(countryDataList, common.SearchCountryItem{
+		countryDataList = append(countryDataList, search.SearchCountryItem{
 			Name:  item.Key.(string),
 			Count: int64(item.DocCount),
 		})
 	}
 	sectionItemList := aggregationsList["group_by_section_id"].Buckets
-	var sectionItem common.SearchSectionItem
+	var sectionItem search.SearchSectionItem
 	for _, item := range sectionItemList {
 		for sIdx, _ := range sectionList {
 			if item.Key.(float64) == float64(int(sectionList[sIdx].ID)) {
@@ -277,30 +277,30 @@ func (srv *SearchService) searchQueryBody(query Boolean) (queryBody es.QueryMap)
 	return
 }
 
-func (srv *SearchService) searchEngineGroup(req *common.SearchRequest) (groups []common.SearchEngineGroup) {
+func (srv *SearchService) searchEngineGroup(req *search.SearchRequest) (groups []search.SearchEngineGroup) {
 	for n, item := range req.Filters {
 		// 默认匹配
-		var g = common.SearchEngineGroup{
-			Type:     common.SearchEngineGroupType(item.Field),
-			Mode:     common.SearchEngineGroupMode(item.Logical),
-			Behavior: common.SearchEngineGroupBehaviorMatch,
+		var g = search.SearchEngineGroup{
+			Type:     search.SearchEngineGroupType(item.Field),
+			Mode:     search.SearchEngineGroupMode(item.Logical),
+			Behavior: search.SearchEngineGroupBehaviorMatch,
 			Values:   []string{item.Value},
 			Boost:    1,
 		}
 		// 精确
-		if item.Type == common.SearchEngineBehaviorTerms {
+		if item.Type == search.SearchEngineBehaviorTerms {
 			g.Boost = 3
 		}
 		// 第一个条件必须是and，前端有可能传错，强制处理
 		if 0 == n {
-			g.Mode = common.SearchEngineGroupModeAnd
+			g.Mode = search.SearchEngineGroupModeAnd
 		}
 		groups = append(groups, g) // 评分条件组
 	}
 	return
 }
 
-func (srv *SearchService) langQueryMustConditions(req *common.SearchRequest) es.QueryMap {
+func (srv *SearchService) langQueryMustConditions(req *search.SearchRequest) es.QueryMap {
 	var boolean = Boolean{}
 	var queryItemList []es.QueryMap
 	var queryItem = es.QueryMap{}
@@ -317,7 +317,7 @@ func (srv *SearchService) langQueryMustConditions(req *common.SearchRequest) es.
 	return boolean.EncodeToQueryMap()
 }
 
-func (srv *SearchService) langQueryFilterConditions(req *common.SearchRequest) es.QueryMap {
+func (srv *SearchService) langQueryFilterConditions(req *search.SearchRequest) es.QueryMap {
 	var boolean = Boolean{}
 	var queryItemList []es.QueryMap
 	var queryItem = es.QueryMap{}
@@ -373,7 +373,7 @@ func (srv *SearchService) langQueryFilterConditions(req *common.SearchRequest) e
 	return boolean.EncodeToQueryMap()
 }
 
-func (srv *SearchService) langConditions(groups []common.SearchEngineGroup) es.QueryMap {
+func (srv *SearchService) langConditions(groups []search.SearchEngineGroup) es.QueryMap {
 	// 处理过滤，每个组的mode对前一个组生效，and与前一个组并列，or与前一个组取一，对应到es的
 	// should + mini 1，not时，前一个组应该在must，当前组应该在must not
 
@@ -381,7 +381,7 @@ func (srv *SearchService) langConditions(groups []common.SearchEngineGroup) es.Q
 
 	// filter用于过滤文档
 	// 优化：连续的AND与OR可以放在一个层级里
-	var before = common.SearchEngineGroupModeAnd
+	var before = search.SearchEngineGroupModeAnd
 	for _, group := range groups {
 		var condition es.QueryMap
 		// 处理子条件组
@@ -393,8 +393,8 @@ func (srv *SearchService) langConditions(groups []common.SearchEngineGroup) es.Q
 
 		// 其他组需要与前一个组进行组合
 		switch group.Mode {
-		case common.SearchEngineGroupModeAnd:
-			if common.SearchEngineGroupModeAnd == before {
+		case search.SearchEngineGroupModeAnd:
+			if search.SearchEngineGroupModeAnd == before {
 				// 直接合并条件
 				boolean.Must = append(boolean.Must, condition)
 			} else {
@@ -407,8 +407,8 @@ func (srv *SearchService) langConditions(groups []common.SearchEngineGroup) es.Q
 				newFilter.Must = append(newFilter.Must, condition)
 				boolean = newFilter
 			}
-		case common.SearchEngineGroupModeOr:
-			if common.SearchEngineGroupModeOr == before {
+		case search.SearchEngineGroupModeOr:
+			if search.SearchEngineGroupModeOr == before {
 				// 直接合并条件
 				boolean.Should = append(boolean.Should, condition)
 			} else {
@@ -424,8 +424,8 @@ func (srv *SearchService) langConditions(groups []common.SearchEngineGroup) es.Q
 
 			// 最少匹配一个
 			boolean.MinimumShouldMatch = 1
-		case common.SearchEngineGroupModeNot:
-			if common.SearchEngineGroupModeNot == before {
+		case search.SearchEngineGroupModeNot:
+			if search.SearchEngineGroupModeNot == before {
 				// 直接合并条件
 				boolean.MustNot = append(boolean.MustNot, condition)
 			} else {
@@ -446,7 +446,7 @@ func (srv *SearchService) langConditions(groups []common.SearchEngineGroup) es.Q
 	return boolean.EncodeToQueryMap()
 }
 
-func (srv *SearchService) langQueryMap(group common.SearchEngineGroup, boost int) []es.QueryMap {
+func (srv *SearchService) langQueryMap(group search.SearchEngineGroup, boost int) []es.QueryMap {
 	var should []es.QueryMap
 
 	for _, field := range LangFieldMapping[group.Type] {
@@ -456,28 +456,28 @@ func (srv *SearchService) langQueryMap(group common.SearchEngineGroup, boost int
 	return should
 }
 
-func (srv *SearchService) initLibTypeList() (libTypeList []common.SearchLibTypeItem) {
-	libTypeList = append(libTypeList, common.SearchLibTypeItem{
+func (srv *SearchService) initLibTypeList() (libTypeList []search.SearchLibTypeItem) {
+	libTypeList = append(libTypeList, search.SearchLibTypeItem{
 		Id:    1,
 		Name:  "名称1",
 		EName: "dynamic",
 		Count: 0,
-	}, common.SearchLibTypeItem{
+	}, search.SearchLibTypeItem{
 		Id:    2,
 		Name:  "名称2",
 		EName: "law",
 		Count: 0,
-	}, common.SearchLibTypeItem{
+	}, search.SearchLibTypeItem{
 		Id:    3,
 		Name:  "名称3",
 		EName: "case",
 		Count: 0,
-	}, common.SearchLibTypeItem{
+	}, search.SearchLibTypeItem{
 		Id:    4,
 		Name:  "名称4",
 		EName: "achievement",
 		Count: 0,
-	}, common.SearchLibTypeItem{
+	}, search.SearchLibTypeItem{
 		Id:    5,
 		Name:  "名称5",
 		EName: "report",

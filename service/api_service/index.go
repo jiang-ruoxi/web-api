@@ -2,6 +2,7 @@ package api_service
 
 import (
 	"api/model"
+	"api/model/web"
 	"api/utils/errs"
 	"context"
 	"github.com/jiang-ruoxi/gopkg/server/api"
@@ -15,7 +16,7 @@ type IndexService struct {
 }
 
 type IndexResponse struct {
-	LexiconList []*model.Lexicon `json:"list"`
+	LexiconList []*web.Lexicon `json:"list"`
 }
 
 func (srv *IndexService) Index(ctx context.Context) (response *IndexResponse, apiErr api.Error) {

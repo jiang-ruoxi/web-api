@@ -11,10 +11,14 @@ func All() func(r *gin.Engine) {
 
 		// panic日志
 		r.Use(ginzap.RecoveryWithZap(log.Sugar().Desugar(), true))
+		r.MaxMultipartMemory = 10 << 20 // 10MB
 
 		prefixRouter := r.Group("/")
 
-		// 网站前台
+		// 绘本项目
 		Api(prefixRouter)
+
+		// Market项目
+		Market(prefixRouter)
 	}
 }

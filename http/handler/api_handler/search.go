@@ -1,7 +1,7 @@
 package api_handler
 
 import (
-	"api/common"
+	"api/common/search"
 	"api/service/search_service"
 	"api/utils/errs"
 	"api/utils/validator"
@@ -20,7 +20,7 @@ type SearchHandler struct {
 
 func (sh *SearchHandler) SearchList(ctx *gin.Context) {
 	// 获取请求参数
-	req := &common.SearchRequest{}
+	req := &search.SearchRequest{}
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(errs.ErrResp(errs.NewError(err.Error())))
 		return

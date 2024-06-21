@@ -1,4 +1,4 @@
-package model
+package web
 
 type Lexicon struct {
 	ID         uint   `gorm:"primaryKey;comment:主键ID" json:"id"`                                                                                       // 主键ID

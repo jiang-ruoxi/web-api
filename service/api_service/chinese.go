@@ -2,7 +2,9 @@ package api_service
 
 import (
 	"api/common"
+	api2 "api/common/web"
 	"api/model"
+	"api/model/web"
 	"github.com/jiang-ruoxi/gopkg/server/api"
 	"math"
 	"sort"
@@ -15,21 +17,21 @@ func NewChineseService() *ChineseService {
 type ChineseService struct {
 }
 
-func (srv *ChineseService) ChineseGetNavList() (response *common.ChineseBookNavResponse, apiErr api.Error) {
-	response = &common.ChineseBookNavResponse{}
-	model.DefaultWeb().Model(&model.ChineseBookName{}).Where("status = 1").Debug().
+func (srv *ChineseService) ChineseGetNavList() (response *api2.ChineseBookNavResponse, apiErr api.Error) {
+	response = &api2.ChineseBookNavResponse{}
+	model.DefaultWeb().Model(&web.ChineseBookName{}).Where("status = 1").Debug().
 		Order("s_sort desc").Order("id asc").
 		Find(&response.List)
 	return
 }
 
-func (srv *ChineseService) ChineseGetBookList(page, level int) (response *common.ChineseBookResponse, apiErr api.Error) {
+func (srv *ChineseService) ChineseGetBookList(page, level int) (response *api2.ChineseBookResponse, apiErr api.Error) {
 	size := common.DEFAULT_PAGE_SIZE
 	offset := size * (page - 1)
-	response = &common.ChineseBookResponse{}
+	response = &api2.ChineseBookResponse{}
 
 	var total int64
-	model.DefaultWeb().Model(&model.ChineseBook{}).Where("type = ? and status = 1", level).Debug().
+	model.DefaultWeb().Model(&web.ChineseBook{}).Where("type = ? and status = 1", level).Debug().
 		Count(&total).
 		Order("position desc").
 		Limit(size).
@@ -38,12 +40,12 @@ func (srv *ChineseService) ChineseGetBookList(page, level int) (response *common
 	response.Page = page
 	response.TotalPage = math.Ceil(float64(total) / float64(common.DEFAULT_PAGE_SIZE))
 
-	var bookInfoCountList []common.ResponseBookInfoCount
+	var bookInfoCountList []api2.ResponseBookInfoCount
 	sql := `SELECT book_id,count(id) as book_count FROM s_chinese_picture_info GROUP BY book_id`
-	model.DefaultWeb().Model(&model.ChineseBookInfo{}).Debug().
+	model.DefaultWeb().Model(&web.ChineseBookInfo{}).Debug().
 		Raw(sql).Scan(&bookInfoCountList)
 
-	var temp common.ResponseChineseBook
+	var temp api2.ResponseChineseBook
 	for _, item := range response.ListModel {
 		temp.Id = item.Id
 		temp.BookId = item.BookId
@@ -72,9 +74,9 @@ func (srv *ChineseService) ChineseGetBookList(page, level int) (response *common
 	return response, nil
 }
 
-func (srv *ChineseService) ChineseGetBookInfo(bookId string) (response *common.ChineseBookInfoResponse, apiErr api.Error) {
-	response = &common.ChineseBookInfoResponse{}
-	model.DefaultWeb().Model(&model.ChineseBookInfo{}).Where("book_id = ?", bookId).Debug().
+func (srv *ChineseService) ChineseGetBookInfo(bookId string) (response *api2.ChineseBookInfoResponse, apiErr api.Error) {
+	response = &api2.ChineseBookInfoResponse{}
+	model.DefaultWeb().Model(&web.ChineseBookInfo{}).Where("book_id = ?", bookId).Debug().
 		Order("position asc").
 		Find(&response.Info)
 	return

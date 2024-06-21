@@ -2,7 +2,9 @@ package api_service
 
 import (
 	"api/common"
+	api2 "api/common/web"
 	"api/model"
+	"api/model/web"
 	"github.com/jiang-ruoxi/gopkg/server/api"
 	"math"
 	"strings"
@@ -15,13 +17,13 @@ func NewPoetryService() *PoetryService {
 type PoetryService struct {
 }
 
-func (srv *PoetryService) PoetryGetChengList(page, level int) (response *common.ChineseChengYuResponse, apiErr api.Error) {
+func (srv *PoetryService) PoetryGetChengList(page, level int) (response *api2.ChineseChengYuResponse, apiErr api.Error) {
 	size := common.DEFAULT_PAGE_SIZE
 	offset := size * (page - 1)
-	response = &common.ChineseChengYuResponse{}
+	response = &api2.ChineseChengYuResponse{}
 
 	var total int64
-	model.DefaultWeb().Model(&model.ChengYU{}).Where("level = ?", level).Debug().
+	model.DefaultWeb().Model(&web.ChengYU{}).Where("level = ?", level).Debug().
 		Count(&total).
 		Order("position desc").
 		Limit(size).
@@ -33,21 +35,21 @@ func (srv *PoetryService) PoetryGetChengList(page, level int) (response *common.
 	return response, nil
 }
 
-func (srv *PoetryService) PoetryGetChengInfo(id int) (response *common.ChineseChengYuInfoResponse, apiErr api.Error) {
-	response = &common.ChineseChengYuInfoResponse{}
-	model.DefaultWeb().Model(&model.ChengYU{}).Where("id = ?", id).Debug().First(&response.Info)
+func (srv *PoetryService) PoetryGetChengInfo(id int) (response *api2.ChineseChengYuInfoResponse, apiErr api.Error) {
+	response = &api2.ChineseChengYuInfoResponse{}
+	model.DefaultWeb().Model(&web.ChengYU{}).Where("id = ?", id).Debug().First(&response.Info)
 	fields := strings.Fields(response.Info.Story)
 	response.Info.StoryList = fields
 	return response, nil
 }
 
-func (srv *PoetryService) PoetryGetSchoolList(page int) (response *common.SchoolPoetryListResponse, apiErr api.Error) {
+func (srv *PoetryService) PoetryGetSchoolList(page int) (response *api2.SchoolPoetryListResponse, apiErr api.Error) {
 	size := common.DEFAULT_PAGE_SIZE
 	offset := size * (page - 1)
-	response = &common.SchoolPoetryListResponse{}
+	response = &api2.SchoolPoetryListResponse{}
 
 	var total int64
-	model.DefaultWeb().Model(&model.Poetry{}).Debug().
+	model.DefaultWeb().Model(&web.Poetry{}).Debug().
 		Count(&total).
 		Raw("SELECT id,poetry_id,title,grade_id,grade,grade_level,author,dynasty FROM s_school_poetry limit ? offset ?", size, offset).Scan(&response.List)
 

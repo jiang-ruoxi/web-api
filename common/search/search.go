@@ -1,4 +1,4 @@
-package common
+package search
 
 type SearchRequest struct {
 	SectionIDs []uint          `json:"section_ids"`            // 栏目ID数组

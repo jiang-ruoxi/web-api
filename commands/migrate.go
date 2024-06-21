@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"api/model"
+	"api/model/web"
 	"github.com/jiang-ruoxi/gopkg/db"
 	"github.com/urfave/cli/v2"
 )
@@ -19,7 +19,7 @@ func Migrate() *cli.Command {
 				Action: func(ctx *cli.Context) error {
 					tx := db.MustGet("web").Debug()
 					tables := []interface{}{
-						&model.Lexicon{},
+						&web.Lexicon{},
 					}
 					return tx.AutoMigrate(tables...)
 				},

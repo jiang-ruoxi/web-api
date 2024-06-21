@@ -1,4 +1,4 @@
-package model
+package web
 
 type ChineseBookName struct {
 	Id         int    `json:"-"`

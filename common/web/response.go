@@ -1,13 +1,15 @@
-package common
+package web
 
-import "api/model"
+import (
+	"api/model/web"
+)
 
 type ChineseBookNavResponse struct {
-	List []model.ChineseBookName `json:"list"`
+	List []web.ChineseBookName `json:"list"`
 }
 
 type ChineseBookResponse struct {
-	ListModel []model.ChineseBook   `json:"-"`
+	ListModel []web.ChineseBook     `json:"-"`
 	List      []ResponseChineseBook `json:"list"`
 	Total     int64                 `json:"total"`
 	Page      int                   `json:"page"`
@@ -15,7 +17,7 @@ type ChineseBookResponse struct {
 }
 
 type ChineseBookInfoResponse struct {
-	Info []model.ChineseBookInfo `json:"info"`
+	Info []web.ChineseBookInfo `json:"info"`
 }
 
 type ResponseChineseBook struct {
@@ -34,28 +36,28 @@ type ResponseBookInfoCount struct {
 }
 
 type ChineseAlbumResponse struct {
-	List      []model.ChineseBookAlbum `json:"list"`
-	Total     int64                    `json:"total"`
-	Page      int                      `json:"page"`
-	TotalPage float64                  `json:"total_page"`
+	List      []web.ChineseBookAlbum `json:"list"`
+	Total     int64                  `json:"total"`
+	Page      int                    `json:"page"`
+	TotalPage float64                `json:"total_page"`
 }
 
 type ChineseAlbumListInfoResponse struct {
-	List      []model.ChineseAlbumInfo `json:"list"`
-	Total     int64                    `json:"total"`
-	Page      int                      `json:"page"`
-	TotalPage float64                  `json:"total_page"`
+	List      []web.ChineseAlbumInfo `json:"list"`
+	Total     int64                  `json:"total"`
+	Page      int                    `json:"page"`
+	TotalPage float64                `json:"total_page"`
 }
 
 type ChineseAlbumInfoResponse struct {
-	Info model.ChineseAlbumInfo `json:"info"`
+	Info web.ChineseAlbumInfo `json:"info"`
 }
 
 type ChineseChengYuResponse struct {
-	List      []model.ChengYU `json:"list"`
-	Total     int64           `json:"total"`
-	Page      int             `json:"page"`
-	TotalPage float64         `json:"total_page"`
+	List      []web.ChengYU `json:"list"`
+	Total     int64         `json:"total"`
+	Page      int           `json:"page"`
+	TotalPage float64       `json:"total_page"`
 }
 
 type ChineseChengYuInfoResponse struct {

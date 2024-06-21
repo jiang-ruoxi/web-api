@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/chenyahui/gin-cache/persist"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -31,3 +32,17 @@ var (
 	GVA_REDIS      *redis.Client
 	GVA_HTTP_CACHE *persist.RedisStore
 )
+
+type Response struct {
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
+}
+
+func ReturnResponse(code int, data interface{}, msg string, c *gin.Context) {
+	c.JSON(200, Response{
+		code,
+		msg,
+		data,
+	})
+}

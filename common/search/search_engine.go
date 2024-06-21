@@ -1,4 +1,4 @@
-package common
+package search
 
 const SearchEngineBehaviorMatch uint8 = 1 // 匹配
 const SearchEngineBehaviorTerms uint8 = 2 // 精确

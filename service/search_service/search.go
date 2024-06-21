@@ -1,8 +1,9 @@
 package search_service
 
 import (
-	"api/common"
+	"api/common/search"
 	"api/model"
+	"api/model/web"
 	"api/utils/errs"
 	"bytes"
 	"context"
@@ -29,9 +30,9 @@ type SearchService struct {
 	engine *elasticsearch.Client
 }
 
-func (srv *SearchService) SearchList(ctx context.Context, req *common.SearchRequest) (response common.SearchListResponse, apiErr api.Error) {
-	var sectionList []model.Section
-	if err := model.DefaultWeb().Model(&model.Section{}).WithContext(ctx).Find(&sectionList).Error; err != nil {
+func (srv *SearchService) SearchList(ctx context.Context, req *search.SearchRequest) (response search.SearchListResponse, apiErr api.Error) {
+	var sectionList []web.Section
+	if err := model.DefaultWeb().Model(&web.Section{}).WithContext(ctx).Find(&sectionList).Error; err != nil {
 		log.SugarContext(ctx).Errorw("SearchService Section List Find", "error", err)
 	}
 	// 获取左侧分组栏目
@@ -60,7 +61,7 @@ func (srv *SearchService) SearchList(ctx context.Context, req *common.SearchRequ
 	return response, nil
 }
 
-func (srv *SearchService) fetchGroupData(ctx context.Context, req *common.SearchRequest, sectionList []model.Section) (statisticsItem common.StatisticsItem, err error) {
+func (srv *SearchService) fetchGroupData(ctx context.Context, req *search.SearchRequest, sectionList []web.Section) (statisticsItem search.StatisticsItem, err error) {
 	var queryGroup Boolean
 	if 0 != len(srv.searchEngineGroup(req)) {
 		queryGroup.Must = append(queryGroup.Must, srv.langConditions(srv.searchEngineGroup(req)))
@@ -74,7 +75,7 @@ func (srv *SearchService) fetchGroupData(ctx context.Context, req *common.Search
 		return statisticsItem, err
 	}
 
-	var contentGroupConditions common.SearchResponseBody
+	var contentGroupConditions search.SearchResponseBody
 	responseGroup, err := srv.engine.Search(
 		srv.engine.Search.WithContext(ctx),
 		srv.engine.Search.WithIndex(viper.GetStringSlice(viper.GetString("elasticsearch.engine.lang_indices"))...),
@@ -120,7 +121,7 @@ func (srv *SearchService) fetchGroupData(ctx context.Context, req *common.Search
 	return
 }
 
-func (srv *SearchService) fetchSearchData(ctx context.Context, req *common.SearchRequest, sectionList []model.Section) (searchData []common.SearchResponseItem, count int64, err error) {
+func (srv *SearchService) fetchSearchData(ctx context.Context, req *search.SearchRequest, sectionList []web.Section) (searchData []search.SearchResponseItem, count int64, err error) {
 	var query Boolean
 	if 0 != len(srv.searchEngineGroup(req)) {
 		query.Must = append(query.Must, srv.langConditions(srv.searchEngineGroup(req)))
@@ -140,7 +141,7 @@ func (srv *SearchService) fetchSearchData(ctx context.Context, req *common.Searc
 		log.SugarContext(ctx).Errorw("SearchService.fetchSearchData json.NewEncoder(&body) 失败", "err", err)
 		return searchData, count, err
 	}
-	var content common.SearchResponseBody
+	var content search.SearchResponseBody
 	response, err := srv.engine.Search(
 		srv.engine.Search.WithContext(ctx),
 		srv.engine.Search.WithIndex(viper.GetStringSlice(viper.GetString("elasticsearch.engine.lang_indices"))...),
@@ -180,9 +181,9 @@ func (srv *SearchService) fetchSearchData(ctx context.Context, req *common.Searc
 	return
 }
 
-func (srv *SearchService) formatSearchData(content common.SearchResponseBody, libTypeList []common.SearchLibTypeItem, sectionList []model.Section) (data []common.SearchResponseItem) {
+func (srv *SearchService) formatSearchData(content search.SearchResponseBody, libTypeList []search.SearchLibTypeItem, sectionList []web.Section) (data []search.SearchResponseItem) {
 	for _, hit := range content.Hits.Hits {
-		var searchResponseItem = new(common.SearchResponseItem)
+		var searchResponseItem = new(search.SearchResponseItem)
 		var item = hit.Source
 		searchResponseItem.LibType = item.LibType //库
 		for idx, _ := range libTypeList {
