@@ -3,16 +3,16 @@ package main
 import (
 	"api/cache"
 	"github.com/jiang-ruoxi/gopkg/es"
+	"github.com/urfave/cli/v2"
 	"os"
 
+	"api/commands"
 	rxMysql "github.com/jiang-ruoxi/gopkg/db"
 	rxLog "github.com/jiang-ruoxi/gopkg/log"
+	rxQueue "github.com/jiang-ruoxi/gopkg/queue"
 	rxRedis "github.com/jiang-ruoxi/gopkg/redis"
 	"github.com/jiang-ruoxi/gopkg/utils"
 	"github.com/spf13/viper"
-	"github.com/urfave/cli/v2"
-
-	"api/commands"
 )
 
 var configFile string
@@ -47,6 +47,7 @@ func initConfig(*cli.Context) error {
 	rxLog.InitFromViper()
 	rxMysql.InitMysqlDB()
 	rxRedis.InitFromViperDefault()
+	rxQueue.Initialize()
 	cache.HttpCache()
 	es.Initialize()
 	return nil
