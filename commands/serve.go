@@ -11,7 +11,7 @@ import (
 func Serve(c *cli.Context) error {
 
 	// 运行HTTP服务
-	graceful.Start(server.NewHttp(server.Addr(":8088"), server.Router(router.All())))
+	graceful.Start(server.NewHttp(server.Addr(":8082"), server.Router(router.All())))
 
 	graceful.Wait()
 
