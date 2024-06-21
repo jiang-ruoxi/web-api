@@ -1,6 +1,6 @@
 module api
 
-go 1.21.9
+go 1.19
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
@@ -9,13 +9,13 @@ require (
 	github.com/gin-contrib/zap v1.1.3
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/jiang-ruoxi/gopkg v0.0.0-20240620012002-c46ea9acda25
+	github.com/jiang-ruoxi/gopkg v0.0.0-20240621025201-f5658029cc57
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.19.0
 	github.com/urfave/cli/v2 v2.27.2
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.18
-	golang.org/x/sync v0.7.0
+	golang.org/x/sync v0.6.0
 	gorm.io/gorm v1.25.10
 	gorm.io/plugin/soft_delete v1.2.1
 )
