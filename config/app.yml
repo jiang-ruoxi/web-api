@@ -22,7 +22,7 @@ log:
     - ./logs/api.log
 elasticsearch:
   engine:
-    lang_indices: jp.language.lib.alias
+    chinese_indices: chinese.book.student.alias
     addresses:
       - http://127.0.0.1:9200
     username: admin

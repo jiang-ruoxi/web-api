@@ -78,7 +78,7 @@ func (srv *SearchService) fetchGroupData(ctx context.Context, req *search.Search
 	var contentGroupConditions search.SearchResponseBody
 	responseGroup, err := srv.engine.Search(
 		srv.engine.Search.WithContext(ctx),
-		srv.engine.Search.WithIndex(viper.GetStringSlice(viper.GetString("elasticsearch.engine.lang_indices"))...),
+		srv.engine.Search.WithIndex(viper.GetStringSlice(viper.GetString("elasticsearch.engine.chinese_indices"))...),
 		srv.engine.Search.WithIgnoreUnavailable(true),
 		srv.engine.Search.WithBody(&bodyGroupConditions),
 		srv.engine.Search.WithFrom(searchFrom),
@@ -144,7 +144,7 @@ func (srv *SearchService) fetchSearchData(ctx context.Context, req *search.Searc
 	var content search.SearchResponseBody
 	response, err := srv.engine.Search(
 		srv.engine.Search.WithContext(ctx),
-		srv.engine.Search.WithIndex(viper.GetStringSlice(viper.GetString("elasticsearch.engine.lang_indices"))...),
+		srv.engine.Search.WithIndex(viper.GetStringSlice(viper.GetString("elasticsearch.engine.chinese_indices"))...),
 		srv.engine.Search.WithIgnoreUnavailable(true),
 		srv.engine.Search.WithBody(&body),
 		srv.engine.Search.WithSort(sortOrder...),
