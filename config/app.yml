@@ -32,7 +32,7 @@ rabbitmq:
     addresses: localhost:5672/
     username: myuser
     password: mypass
-    queue-name: ddd
+    queue-name: order
 wechat:
   appid: "wx2afb8412b1111"
   secret: "82c2222d4e09230a06f8132b04577"

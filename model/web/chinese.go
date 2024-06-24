@@ -99,3 +99,32 @@ type Poetry struct {
 func (Poetry) TableName() string {
 	return "s_school_poetry"
 }
+
+type EEnglishPicture struct {
+	Id       int    `json:"-"`
+	BookId   string `json:"book_id"`
+	Title    string `json:"title"`
+	Icon     string `json:"icon"`
+	Level    int    `json:"level"`
+	Position uint8  `json:"position"`
+	Status   uint8  `json:"status"`
+}
+
+func (EEnglishPicture) TableName() string {
+	return "e_english_picture"
+}
+
+type EEnglishPictureInfo struct {
+	Id       int    `json:"-"`
+	BookId   string `json:"book_id"`
+	Pic      string `json:"pic"`
+	BPic     string `json:"b_pic"`
+	Mp3      string `json:"mp3"`
+	En       string `json:"en"`
+	Zh       string `json:"zh"`
+	Position int    `json:"position"`
+}
+
+func (EEnglishPictureInfo) TableName() string {
+	return "e_english_picture_info"
+}

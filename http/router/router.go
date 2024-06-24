@@ -20,5 +20,8 @@ func All() func(r *gin.Engine) {
 
 		// Market项目
 		Market(prefixRouter)
+
+		// 下载
+		Download(prefixRouter)
 	}
 }

@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
 	"github.com/jiang-ruoxi/gopkg/utils"
@@ -80,4 +82,20 @@ func FormatSliceUintString(idS []uint) (str string) {
 	}
 	str = strings.Join(strS, ",")
 	return
+}
+
+func MD5String(str string) string {
+	h := md5.New()
+	h.Write([]byte(str))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// Contains 判断切片是否存在元素
+func Contains[T comparable](s []T, e T) bool {
+	for _, v := range s {
+		if v == e {
+			return true
+		}
+	}
+	return false
 }
