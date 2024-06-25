@@ -368,3 +368,42 @@ func processFolder(folderPath string) {
 		fmt.Println("内容已追加写入文件")
 	}
 }
+
+func renameDir() {
+	rootDir := "/Users/jiang/demo/file"
+
+	// 读取根目录下的所有文件和文件夹
+	folders, err := ioutil.ReadDir(rootDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 遍历根目录下的每一个文件夹
+	for _, folder := range folders {
+		if folder.IsDir() {
+			folderPath := filepath.Join(rootDir, folder.Name())
+			fmt.Println(folderPath)
+			// 获取目录路径
+			dirPath := filepath.Dir(folderPath) + string(filepath.Separator)
+			base := filepath.Base(folderPath)
+			split := strings.Split(base, "-")
+			newDir := dirPath + split[0]
+			fmt.Println(newDir)
+
+			// 原始文件夹路径
+			oldPath := folderPath
+
+			// 新文件夹路径
+			newPath := newDir
+
+			// 重命名文件夹
+			err := os.Rename(oldPath, newPath)
+			if err != nil {
+				fmt.Println("文件夹重命名失败:", err)
+				//return
+			}
+
+			fmt.Println("文件夹重命名成功")
+		}
+	}
+}
