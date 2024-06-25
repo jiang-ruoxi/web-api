@@ -33,6 +33,7 @@ type SEnglishPicture struct {
 	Icon     string `json:"icon"`
 	Level    int    `json:"level"`
 	Position int    `json:"position"`
+	Status   int    `json:"status"`
 }
 
 func (SEnglishPicture) TableName() string {

@@ -23,5 +23,8 @@ func All() func(r *gin.Engine) {
 
 		// 下载
 		Download(prefixRouter)
+
+		// 学生库
+		Student(prefixRouter)
 	}
 }

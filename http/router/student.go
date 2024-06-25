@@ -12,6 +12,7 @@ func Student(r *gin.RouterGroup) {
 
 	poetryHandler := student_handler.NewPoetryPictureInfoHandler()
 	{
-		prefixRouter.GET("/chinese/getNavList", poetryHandler.PoetryPictureInfoList)
+		prefixRouter.GET("/poetry/list", poetryHandler.PoetryPictureInfoList)
+		prefixRouter.GET("/shell/list", poetryHandler.ShellDirList)
 	}
 }
