@@ -1,6 +1,8 @@
 package student_handler
 
 import (
+	"api/model"
+	"api/model/student"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -16,6 +18,95 @@ func (sh *PoetryPictureHandler) ShellDirList(ctx *gin.Context) {
 	makeAllMp4()
 }
 
+// step 6  renameMp4 将视频重命名
+func renameMp4() {
+	var list []student.SPoetryPicture
+	model.DefaultStudent().Model(&student.SPoetryPicture{}).Debug().Where("id > 0").
+		Find(&list)
+	// 目标目录
+	dir := "/Users/jiang/demo/result"
+
+	// 遍历目录下的所有文件
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// 打印文件路径（只打印文件，不打印目录）
+		if !info.IsDir() {
+			// 获取文件名（带扩展名）
+			fileNameWithExt := filepath.Base(path)
+
+			// 去掉文件扩展名
+			fileName := strings.TrimSuffix(fileNameWithExt, filepath.Ext(fileNameWithExt))
+
+			for idx, _ := range list {
+				if fileName == list[idx].BookId {
+
+					// 原始文件路径
+					oldPath := path
+
+					// 新文件路径
+					newPath := "/Users/jiang/demo/result/" + list[idx].Title + ".mp4"
+
+					// 重命名文件
+					err := os.Rename(oldPath, newPath)
+					if err != nil {
+						fmt.Println("文件重命名失败:", err)
+					}
+
+					fmt.Println("文件重命名成功")
+				}
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		fmt.Println("遍历目录失败:", err)
+	}
+
+}
+
+// step 5  moveMp4ToResult 将合成好的视频移动到指定的目录
+func moveMp4ToResult() {
+	root := "/Users/jiang/demo/mp4"
+
+	// 读取根目录下的所有文件和文件夹
+	folders, err := ioutil.ReadDir(root)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 遍历根目录下的每一个文件夹
+	for _, folder := range folders {
+		if folder.IsDir() {
+			folderPath := filepath.Join(root, folder.Name())
+
+			base := filepath.Base(folderPath)
+			srcPath := folderPath + "/" + base + ".mp4"
+
+			// 目标目录
+			destDir := "/Users/jiang/demo/result"
+
+			// 获取文件名
+			fileName := filepath.Base(srcPath)
+
+			// 目标文件路径
+			destPath := filepath.Join(destDir, fileName)
+
+			// 移动文件
+			err := os.Rename(srcPath, destPath)
+			if err != nil {
+				fmt.Println("文件移动失败:", err)
+			}
+
+			fmt.Println("文件移动成功")
+		}
+	}
+}
+
+// step 4  makeAllMp4 整合一条命令合并单个的视频
 func makeAllMp4() {
 
 	root := "/Users/jiang/demo/shell"
@@ -59,6 +150,7 @@ func visitLogFiles(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
+// step 3 makeMp4 合成完整的mp4
 func makeMp4() {
 	rootDir := "/Users/jiang/demo/file"
 
@@ -149,7 +241,8 @@ func processFolderMp4(folderPath string) {
 	}
 }
 
-func (sh *PoetryPictureHandler) makeDirItem() {
+// step 2 makeDirItem 创建对应的目录
+func makeDirItem() {
 	rootDir := "/Users/jiang/demo/file"
 
 	// 读取根目录下的所有文件和文件夹
@@ -175,7 +268,8 @@ func (sh *PoetryPictureHandler) makeDirItem() {
 	}
 }
 
-func (sh *PoetryPictureHandler) makeAllMp4() {
+// step 1: makeAllMp4 制作一个个mp4
+func makeAllMp4ItemOneByOne() {
 	rootDir := "/Users/jiang/demo/file"
 
 	// 读取根目录下的所有文件和文件夹
@@ -193,6 +287,7 @@ func (sh *PoetryPictureHandler) makeAllMp4() {
 	}
 }
 
+// step 1: processFolder 制作一个个mp4
 func processFolder(folderPath string) {
 	// 读取文件夹下的所有文件和文件夹
 	files, err := ioutil.ReadDir(folderPath)
@@ -257,7 +352,7 @@ func processFolder(folderPath string) {
 		fmt.Println(shell)
 
 		// 打开文件，如果文件不存在则创建文件
-		file, err := os.OpenFile("/Users/jiang/demo/shell/shell.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		file, err := os.OpenFile("/Users/jiang/demo/shell/shell.sh", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			fmt.Printf("无法打开文件: %v\n", err)
 			return

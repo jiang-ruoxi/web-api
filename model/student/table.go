@@ -1,8 +1,18 @@
 package student
 
+type SChinesePicture struct {
+	Id        int    `json:"id"`
+	BookIdOld string `json:"book_id_old"`
+	Title     string `json:"title"`
+}
+
+func (SChinesePicture) TableName() string {
+	return "s_chinese_picture"
+}
+
 type SPoetryPicture struct {
 	Id     int    `json:"id"`
-	BookId int    `json:"book_id"`
+	BookId string `json:"book_id"`
 	Title  string `json:"title"`
 	Icon   string `json:"icon"`
 	TypeId int    `json:"type_id"`
